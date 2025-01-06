@@ -8,5 +8,5 @@ namespace Soenneker.Managers.HashChecking.Abstract;
 /// </summary>
 public interface IHashCheckingManager
 {
-    ValueTask<bool> CheckForHashDifferences(string gitDirectory, string filePath, string hashFile, CancellationToken cancellationToken = default);
+    ValueTask<(bool needsUpdate, string? newHash)> CheckForHashDifferences(string gitDirectory, string filePath, string hashFile, CancellationToken cancellationToken = default);
 }
