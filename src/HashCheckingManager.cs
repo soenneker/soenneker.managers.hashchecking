@@ -29,14 +29,14 @@ public class HashCheckingManager : IHashCheckingManager
         string hashFilePath = Path.Combine(gitDirectory, hashFile);
         string? oldHash = await _fileUtil.TryRead(hashFilePath, true, cancellationToken).NoSync();
 
+        // Compute the new hash
+        string newHash = await _sha3Util.HashFile(filePath, true, cancellationToken).NoSync();
+
         if (oldHash == null)
         {
             _logger.LogDebug("Could not read hash from repository, proceeding to update...");
-            return (true, null);
+            return (true, newHash);
         }
-
-        // Compute the new hash
-        string newHash = await _sha3Util.HashFile(filePath, true, cancellationToken).NoSync();
 
         // Compare old vs new
         if (oldHash == newHash)
