@@ -42,7 +42,7 @@
     </ItemGroup>
     
     <ItemGroup>
-      <PackageReference Include="Soenneker.Utils.File" Version="3.0.1892" />
+      <PackageReference Include="Soenneker.Utils.File" Version="3.0.1894" />
       <PackageReference Include="Soenneker.Utils.SHA3" Version="3.0.1245" />
     </ItemGroup>
 </Project>
