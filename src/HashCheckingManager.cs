@@ -10,7 +10,7 @@ using Soenneker.Extensions.ValueTask;
 namespace Soenneker.Managers.HashChecking;
 
 /// <inheritdoc cref="IHashCheckingManager"/>
-public class HashCheckingManager : IHashCheckingManager
+public sealed class HashCheckingManager : IHashCheckingManager
 {
     private readonly ILogger<HashCheckingManager> _logger;
     private readonly IFileUtil _fileUtil;
@@ -23,10 +23,11 @@ public class HashCheckingManager : IHashCheckingManager
         _sha3Util = sha3Util;
     }
 
-    public async ValueTask<(bool needsUpdate, string? newHash)> CheckForHashDifferences(string gitDirectory, string filePath, string hashFile, CancellationToken cancellationToken = default)
+    public async ValueTask<(bool needsUpdate, string? newHash)> CheckForHashDifferences(string gitDirectory, string filePath, string hashFileName,
+        CancellationToken cancellationToken = default)
     {
         // Attempt to read the old hash
-        string hashFilePath = Path.Combine(gitDirectory, hashFile);
+        string hashFilePath = Path.Combine(gitDirectory, hashFileName);
         string? oldHash = await _fileUtil.TryRead(hashFilePath, true, cancellationToken).NoSync();
 
         // Compute the new hash
@@ -39,6 +40,29 @@ public class HashCheckingManager : IHashCheckingManager
         }
 
         // Compare old vs new
+        if (oldHash == newHash)
+        {
+            _logger.LogInformation("Hashes are equal, no need to update, exiting...");
+            return (false, null);
+        }
+
+        return (true, newHash);
+    }
+
+    public async ValueTask<(bool needsUpdate, string? newHash)> CheckForHashDifferencesOfDirectory(string gitDirectory, string inputDirectory,
+        string hashFileName, CancellationToken cancellationToken = default)
+    {
+        string hashFilePath = Path.Combine(gitDirectory, hashFileName);
+        string? oldHash = await _fileUtil.TryRead(hashFilePath, true, cancellationToken);
+
+        string newHash = await _sha3Util.HashDirectory(inputDirectory, true, cancellationToken);
+
+        if (oldHash == null)
+        {
+            _logger.LogDebug("Could not read hash from repository, proceeding to update...");
+            return (true, newHash);
+        }
+
         if (oldHash == newHash)
         {
             _logger.LogInformation("Hashes are equal, no need to update, exiting...");
