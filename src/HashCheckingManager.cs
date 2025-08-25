@@ -28,10 +28,16 @@ public sealed class HashCheckingManager : IHashCheckingManager
     {
         // Attempt to read the old hash
         string hashFilePath = Path.Combine(gitDirectory, hashFileName);
-        string? oldHash = await _fileUtil.TryRead(hashFilePath, true, cancellationToken).NoSync();
 
-        // Compute the new hash
         string newHash = await _sha3Util.HashFile(filePath, true, cancellationToken).NoSync();
+
+        if (!await _fileUtil.FileExists(hashFileName, cancellationToken).NoSync())
+        {
+            _logger.LogDebug("Hash file does not exist, proceeding to update...");
+            return (true, newHash);
+        }
+
+        string? oldHash = await _fileUtil.TryRead(hashFilePath, true, cancellationToken).NoSync();
 
         if (oldHash == null)
         {
@@ -53,9 +59,19 @@ public sealed class HashCheckingManager : IHashCheckingManager
         string hashFileName, CancellationToken cancellationToken = default)
     {
         string hashFilePath = Path.Combine(gitDirectory, hashFileName);
-        string? oldHash = await _fileUtil.TryRead(hashFilePath, true, cancellationToken);
 
-        string newHash = await _sha3Util.HashDirectory(inputDirectory, true, cancellationToken);
+        string? oldHash = null;
+
+        if (!await _fileUtil.FileExists(hashFileName, cancellationToken).NoSync())
+        {
+            _logger.LogDebug("Hash file does not exist, hashing directory");
+        }
+        else
+        {
+            oldHash = await _fileUtil.TryRead(hashFilePath, true, cancellationToken).NoSync();
+        }
+
+        string newHash = await _sha3Util.HashDirectory(inputDirectory, true, cancellationToken).NoSync();
 
         if (oldHash == null)
         {
