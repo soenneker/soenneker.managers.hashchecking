@@ -31,7 +31,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
 
         string newHash = await _sha3Util.HashFile(filePath, true, cancellationToken).NoSync();
 
-        if (!await _fileUtil.FileExists(hashFilePath, cancellationToken).NoSync())
+        if (!await _fileUtil.Exists(hashFilePath, cancellationToken).NoSync())
         {
             _logger.LogDebug("Hash file does not exist, proceeding to update...");
             return (true, newHash);
@@ -62,7 +62,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
 
         string? oldHash = null;
 
-        if (!await _fileUtil.FileExists(hashFilePath, cancellationToken).NoSync())
+        if (!await _fileUtil.Exists(hashFilePath, cancellationToken).NoSync())
         {
             _logger.LogDebug("Hash file does not exist, hashing directory");
         }
