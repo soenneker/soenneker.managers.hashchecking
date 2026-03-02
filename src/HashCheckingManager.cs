@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Soenneker.Utils.File.Abstract;
-using Soenneker.Utils.SHA3.Abstract;
 using Soenneker.Extensions.ValueTask;
+using Soenneker.Hashing.Blake3.Abstract;
 
 namespace Soenneker.Managers.HashChecking;
 
@@ -14,13 +14,13 @@ public sealed class HashCheckingManager : IHashCheckingManager
 {
     private readonly ILogger<HashCheckingManager> _logger;
     private readonly IFileUtil _fileUtil;
-    private readonly IBlake3Util _sha3Util;
+    private readonly IBlake3Util _blake3Util;
 
-    public HashCheckingManager(ILogger<HashCheckingManager> logger, IFileUtil fileUtil, IBlake3Util sha3Util)
+    public HashCheckingManager(ILogger<HashCheckingManager> logger, IFileUtil fileUtil, IBlake3Util blake3Util)
     {
         _logger = logger;
         _fileUtil = fileUtil;
-        _sha3Util = sha3Util;
+        _blake3Util = blake3Util;
     }
 
     public async ValueTask<(bool needsUpdate, string newHash)> CheckForHashDifferences(string gitDirectory, string filePath, string hashFileName,
@@ -29,7 +29,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
         // Attempt to read the old hash
         string hashFilePath = Path.Combine(gitDirectory, hashFileName);
 
-        string newHash = await _sha3Util.HashFile(filePath, true, cancellationToken).NoSync();
+        string newHash = await _blake3Util.HashFile(filePath, cancellationToken).NoSync();
 
         if (!await _fileUtil.Exists(hashFilePath, cancellationToken).NoSync())
         {
@@ -71,7 +71,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
             oldHash = await _fileUtil.TryRead(hashFilePath, true, cancellationToken).NoSync();
         }
 
-        string newHash = await _sha3Util.HashDirectory(inputDirectory, true, cancellationToken).NoSync();
+        string newHash = await _blake3Util.HashDirectoryToAggregateString(inputDirectory, cancellationToken).NoSync();
 
         if (oldHash == null)
         {

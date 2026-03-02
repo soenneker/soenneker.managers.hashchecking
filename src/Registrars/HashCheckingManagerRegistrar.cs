@@ -1,8 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Soenneker.Hashing.Blake3.Registrars;
 using Soenneker.Managers.HashChecking.Abstract;
-using Soenneker.Utils.File.Registrars;
-using Soenneker.Utils.SHA3.Registrars;
 
 namespace Soenneker.Managers.HashChecking.Registrars;
 
