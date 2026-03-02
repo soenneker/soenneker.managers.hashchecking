@@ -16,7 +16,7 @@ public static class HashCheckingManagerRegistrar
     /// </summary>
     public static IServiceCollection AddHashCheckingManagerAsSingleton(this IServiceCollection services)
     {
-        services.AddFileUtilAsSingleton().AddSha3UtilAsSingleton().TryAddSingleton<IHashCheckingManager, HashCheckingManager>();
+        services.AddBlake3UtilAsSingleton().TryAddSingleton<IHashCheckingManager, HashCheckingManager>();
 
         return services;
     }
@@ -26,7 +26,7 @@ public static class HashCheckingManagerRegistrar
     /// </summary>
     public static IServiceCollection AddHashCheckingManagerAsScoped(this IServiceCollection services)
     {
-        services.AddFileUtilAsScoped().AddSha3UtilAsScoped().TryAddScoped<IHashCheckingManager, HashCheckingManager>();
+        services.AddBlake3UtilAsScoped().TryAddScoped<IHashCheckingManager, HashCheckingManager>();
 
         return services;
     }

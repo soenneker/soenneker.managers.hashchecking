@@ -14,9 +14,9 @@ public sealed class HashCheckingManager : IHashCheckingManager
 {
     private readonly ILogger<HashCheckingManager> _logger;
     private readonly IFileUtil _fileUtil;
-    private readonly ISha3Util _sha3Util;
+    private readonly IBlake3Util _sha3Util;
 
-    public HashCheckingManager(ILogger<HashCheckingManager> logger, IFileUtil fileUtil, ISha3Util sha3Util)
+    public HashCheckingManager(ILogger<HashCheckingManager> logger, IFileUtil fileUtil, IBlake3Util sha3Util)
     {
         _logger = logger;
         _fileUtil = fileUtil;
