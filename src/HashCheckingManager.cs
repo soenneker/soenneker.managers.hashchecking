@@ -23,7 +23,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
         _sha3Util = sha3Util;
     }
 
-    public async ValueTask<(bool needsUpdate, string? newHash)> CheckForHashDifferences(string gitDirectory, string filePath, string hashFileName,
+    public async ValueTask<(bool needsUpdate, string newHash)> CheckForHashDifferences(string gitDirectory, string filePath, string hashFileName,
         CancellationToken cancellationToken = default)
     {
         // Attempt to read the old hash
@@ -49,13 +49,13 @@ public sealed class HashCheckingManager : IHashCheckingManager
         if (oldHash == newHash)
         {
             _logger.LogInformation("Hashes are equal, no need to update, exiting...");
-            return (false, null);
+            return (false, newHash);
         }
 
         return (true, newHash);
     }
 
-    public async ValueTask<(bool needsUpdate, string? newHash)> CheckForHashDifferencesOfDirectory(string gitDirectory, string inputDirectory,
+    public async ValueTask<(bool needsUpdate, string newHash)> CheckForHashDifferencesOfDirectory(string gitDirectory, string inputDirectory,
         string hashFileName, CancellationToken cancellationToken = default)
     {
         string hashFilePath = Path.Combine(gitDirectory, hashFileName);
@@ -82,7 +82,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
         if (oldHash == newHash)
         {
             _logger.LogInformation("Hashes are equal, no need to update, exiting...");
-            return (false, null);
+            return (false, newHash);
         }
 
         return (true, newHash);
