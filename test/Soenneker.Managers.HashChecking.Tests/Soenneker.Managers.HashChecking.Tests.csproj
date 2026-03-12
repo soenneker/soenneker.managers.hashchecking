@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Soenneker.Managers.HashChecking.csproj" />
+        <ProjectReference Include="..\..\src\Soenneker.Managers.HashChecking\Soenneker.Managers.HashChecking.csproj" />
     </ItemGroup>
 
     <ItemGroup>
