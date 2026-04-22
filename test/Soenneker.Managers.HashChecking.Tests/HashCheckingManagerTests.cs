@@ -1,20 +1,19 @@
 using Soenneker.Managers.HashChecking.Abstract;
-using Soenneker.Tests.FixturedUnit;
-using Xunit;
+using Soenneker.Tests.HostedUnit;
 
 namespace Soenneker.Managers.HashChecking.Tests;
 
-[Collection("Collection")]
-public class HashCheckingManagerTests : FixturedUnitTest
+[ClassDataSource<Host>(Shared = SharedType.PerTestSession)]
+public class HashCheckingManagerTests : HostedUnitTest
 {
     private readonly IHashCheckingManager _util;
 
-    public HashCheckingManagerTests(Fixture fixture, ITestOutputHelper output) : base(fixture, output)
+    public HashCheckingManagerTests(Host host) : base(host)
     {
         _util = Resolve<IHashCheckingManager>(true);
     }
 
-    [Fact]
+    [Test]
     public void Default()
     {
 
