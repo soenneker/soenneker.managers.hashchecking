@@ -13,6 +13,8 @@ public static class HashCheckingManagerRegistrar
     /// <summary>
     /// Adds <see cref="IHashCheckingManager"/> as a singleton service. <para/>
     /// </summary>
+    /// <param name="services">Service collection that receives the registration.</param>
+    /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddHashCheckingManagerAsSingleton(this IServiceCollection services)
     {
         services.AddBlake3UtilAsSingleton().TryAddSingleton<IHashCheckingManager, HashCheckingManager>();
@@ -23,6 +25,8 @@ public static class HashCheckingManagerRegistrar
     /// <summary>
     /// Adds <see cref="IHashCheckingManager"/> as a scoped service. <para/>
     /// </summary>
+    /// <param name="services">Service collection that receives the registration.</param>
+    /// <returns>The same service collection, so additional registrations can be chained.</returns>
     public static IServiceCollection AddHashCheckingManagerAsScoped(this IServiceCollection services)
     {
         services.AddBlake3UtilAsScoped().TryAddScoped<IHashCheckingManager, HashCheckingManager>();
