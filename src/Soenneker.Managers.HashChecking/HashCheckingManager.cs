@@ -9,7 +9,6 @@ using Soenneker.Hashing.Blake3.Abstract;
 
 namespace Soenneker.Managers.HashChecking;
 
-/// <inheritdoc cref="IHashCheckingManager"/>
 public sealed class HashCheckingManager : IHashCheckingManager
 {
     private readonly ILogger<HashCheckingManager> _logger;
@@ -27,7 +26,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
         CancellationToken cancellationToken = default)
     {
         // Attempt to read the old hash
-        string hashFilePath = Path.Combine(gitDirectory, hashFileName);
+        string hashFilePath = GetPathWithin(gitDirectory, hashFileName);
 
         string newHash = await _blake3Util.HashFile(filePath, cancellationToken).NoSync();
 
@@ -46,7 +45,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
         }
 
         // Compare old vs new
-        if (oldHash == newHash)
+        if (oldHash.Trim() == newHash)
         {
             _logger.LogInformation("Hashes are equal, no need to update, exiting...");
             return (false, newHash);
@@ -58,7 +57,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
     public async ValueTask<(bool needsUpdate, string newHash)> CheckForHashDifferencesOfDirectory(string gitDirectory, string inputDirectory,
         string hashFileName, CancellationToken cancellationToken = default)
     {
-        string hashFilePath = Path.Combine(gitDirectory, hashFileName);
+        string hashFilePath = GetPathWithin(gitDirectory, hashFileName);
 
         string? oldHash = null;
 
@@ -79,12 +78,24 @@ public sealed class HashCheckingManager : IHashCheckingManager
             return (true, newHash);
         }
 
-        if (oldHash == newHash)
+        if (oldHash.Trim() == newHash)
         {
             _logger.LogInformation("Hashes are equal, no need to update, exiting...");
             return (false, newHash);
         }
 
         return (true, newHash);
+    }
+
+    private static string GetPathWithin(string rootDirectory, string relativePath)
+    {
+        string root = Path.GetFullPath(rootDirectory);
+        string candidate = Path.GetFullPath(relativePath, root);
+        string rootPrefix = Path.TrimEndingDirectorySeparator(root) + Path.DirectorySeparatorChar;
+
+        if (!candidate.StartsWith(rootPrefix, System.StringComparison.OrdinalIgnoreCase))
+            throw new System.InvalidOperationException("Hash file must be located within the Git directory.");
+
+        return candidate;
     }
 }

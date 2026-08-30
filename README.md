@@ -5,7 +5,7 @@
 
 # Soenneker.Managers.HashChecking
 
-Handles hashing and verification of binaries.
+Compares BLAKE3 hashes for a file or directory against a hash stored in a repository checkout.
 
 ## Install
 
@@ -13,17 +13,31 @@ Handles hashing and verification of binaries.
 dotnet add package Soenneker.Managers.HashChecking
 ```
 
-## Quick start
+## Usage
 
 ```csharp
-using Soenneker.Managers.HashChecking.Registrars;
 using Microsoft.Extensions.DependencyInjection;
+using Soenneker.Managers.HashChecking.Abstract;
+using Soenneker.Managers.HashChecking.Registrars;
 
-var services = new ServiceCollection();
-var result = services.AddHashCheckingManagerAsSingleton();
+services.AddHashCheckingManagerAsSingleton();
+
+IHashCheckingManager hashes =
+    serviceProvider.GetRequiredService<IHashCheckingManager>();
+
+(bool needsUpdate, string newHash) = await hashes.CheckForHashDifferences(
+    gitDirectory: repositoryPath,
+    filePath: downloadedBinaryPath,
+    hashFileName: "hash.txt",
+    cancellationToken);
+
+if (needsUpdate)
+{
+    // Validate and publish the new artifact, then persist newHash.
+}
 ```
 
-Adds `IHashCheckingManager` as a singleton service.
+The methods only compare hashes. They do not write the hash file or update Git.
 
 ## What you get
 
@@ -41,9 +55,11 @@ Adds `IHashCheckingManager` as a singleton service.
 
 ## Important behavior
 
-- `IHashCheckingManager.CheckForHashDifferences(gitDirectory, filePath, hashFileName, cancellationToken)`: If the hash file does not exist or the file cannot be read, the method may indicate that an update is needed. This method does not modify any files.
-- `IHashCheckingManager.CheckForHashDifferencesOfDirectory(gitDirectory, inputDirectory, hashFileName, cancellationToken)`: This method performs a hash comparison between the input directory and the reference hash file in the Git directory. If the hashes differ, the method indicates that an update is needed and provides the new hash value. The operation is asynchronous and can be cancelled via the provided cancellation token.
+- A missing or unreadable stored hash returns `needsUpdate: true` with the newly calculated hash.
+- Stored leading/trailing whitespace is ignored during comparison.
+- `hashFileName` may be a relative path inside `gitDirectory`; paths that escape the checkout are rejected.
+- Directory comparisons use `IBlake3Util.HashDirectoryToAggregateString`. Use the returned aggregate string as the next stored value.
 
 ## Practical notes
 
-- Cancellation stops pending work; it does not undo work that has already completed.
+- Hashing large files or directories can be expensive; pass cancellation through from the owning runner.
