@@ -9,6 +9,7 @@ using Soenneker.Hashing.Blake3.Abstract;
 
 namespace Soenneker.Managers.HashChecking;
 
+/// <inheritdoc cref="IHashCheckingManager" />
 public sealed class HashCheckingManager : IHashCheckingManager
 {
     private readonly ILogger<HashCheckingManager> _logger;
