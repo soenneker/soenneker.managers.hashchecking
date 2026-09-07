@@ -1,4 +1,5 @@
 using Soenneker.Managers.HashChecking.Abstract;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Threading;
@@ -46,7 +47,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
         }
 
         // Compare old vs new
-        if (oldHash.Trim() == newHash)
+        if (HashesMatch(oldHash, newHash))
         {
             _logger.LogInformation("Hashes are equal, no need to update, exiting...");
             return (false, newHash);
@@ -79,7 +80,7 @@ public sealed class HashCheckingManager : IHashCheckingManager
             return (true, newHash);
         }
 
-        if (oldHash.Trim() == newHash)
+        if (HashesMatch(oldHash, newHash))
         {
             _logger.LogInformation("Hashes are equal, no need to update, exiting...");
             return (false, newHash);
@@ -87,6 +88,9 @@ public sealed class HashCheckingManager : IHashCheckingManager
 
         return (true, newHash);
     }
+
+    private static bool HashesMatch(string storedHash, string? hash) =>
+        hash is not null && storedHash.AsSpan().Trim().SequenceEqual(hash.AsSpan());
 
     private static string GetPathWithin(string rootDirectory, string relativePath)
     {
