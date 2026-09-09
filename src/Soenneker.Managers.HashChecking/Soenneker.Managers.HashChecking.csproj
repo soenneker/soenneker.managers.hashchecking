@@ -44,6 +44,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Hashing.Blake3" Version="4.0.133" />
+        <PackageReference Include="Soenneker.Hashing.Blake3" Version="4.0.135" />
     </ItemGroup>
 </Project>
